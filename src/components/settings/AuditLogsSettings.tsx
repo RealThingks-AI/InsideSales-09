@@ -48,6 +48,7 @@ const AuditLogsSettings = () => {
   const [category, setCategory] = useState<FilterCategory>('all_except_auth');
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [moduleFilter, setModuleFilter] = useState<ModuleFilter>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [revertDialogOpen, setRevertDialogOpen] = useState(false);
