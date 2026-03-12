@@ -231,21 +231,27 @@ export default function ActionItems() {
   };
   const handlePriorityChange = async (id: string, priority: ActionItemPriority) => {
     try {
+      const item = actionItems.find(a => a.id === id);
       await updateActionItem({ id, priority });
+      logUpdate('action_items', id, { priority }, { title: item?.title, priority: item?.priority });
     } catch (error) {
       console.error('Failed to update priority:', error);
     }
   };
   const handleAssignedToChange = async (id: string, userId: string | null) => {
     try {
+      const item = actionItems.find(a => a.id === id);
       await updateActionItem({ id, assigned_to: userId });
+      logUpdate('action_items', id, { assigned_to: userId }, { title: item?.title, assigned_to: item?.assigned_to });
     } catch (error) {
       console.error('Failed to update assignee:', error);
     }
   };
   const handleDueDateChange = async (id: string, date: string | null) => {
     try {
+      const item = actionItems.find(a => a.id === id);
       await updateActionItem({ id, due_date: date });
+      logUpdate('action_items', id, { due_date: date }, { title: item?.title, due_date: item?.due_date });
     } catch (error) {
       console.error('Failed to update due date:', error);
     }
