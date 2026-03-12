@@ -9,7 +9,7 @@ import { Download, Activity, Undo, Eye, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { RevertConfirmDialog } from "@/components/feeds/RevertConfirmDialog";
 import { StandardPagination } from "@/components/shared/StandardPagination";
-import { AuditLogFilters } from "./audit/AuditLogFilters";
+import { AuditLogFilters, ModuleFilter } from "./audit/AuditLogFilters";
 import { AuditLogDetailDialog } from "./audit/AuditLogDetailDialog";
 import { AuditLogStats } from "./audit/AuditLogStats";
 import {
