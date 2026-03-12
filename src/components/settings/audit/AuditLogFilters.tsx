@@ -59,6 +59,20 @@ export const AuditLogFilters = ({
         </SelectContent>
       </Select>
 
+      <Select value={moduleFilter} onValueChange={(v) => onModuleFilterChange(v as ModuleFilter)}>
+        <SelectTrigger className="w-[150px] h-8 text-sm">
+          <SelectValue placeholder="Module" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Modules</SelectItem>
+          <SelectItem value="deals">Deals</SelectItem>
+          <SelectItem value="leads">Leads</SelectItem>
+          <SelectItem value="contacts">Contacts</SelectItem>
+          <SelectItem value="accounts">Accounts</SelectItem>
+          <SelectItem value="action_items">Action Items</SelectItem>
+        </SelectContent>
+      </Select>
+
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs px-2.5">

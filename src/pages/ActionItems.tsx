@@ -261,10 +261,12 @@ export default function ActionItems() {
       ids: selectedIds,
       status: 'Completed'
     });
+    logBulkUpdate('action_items', selectedIds.length, { status: 'Completed' });
     setSelectedIds([]);
   };
   const handleBulkDelete = async () => {
     await bulkDelete(selectedIds);
+    logBulkDelete('action_items', selectedIds.length, selectedIds);
     setSelectedIds([]);
     setBulkDeleteDialogOpen(false);
   };

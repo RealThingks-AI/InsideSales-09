@@ -73,15 +73,15 @@ export const getRecordName = (log: AuditLog): string => {
   
   // From record_data (CREATE)
   if (d.record_data) {
-    return d.record_data.deal_name || d.record_data.lead_name || d.record_data.contact_name || d.record_data.account_name || d.record_data.title || '';
+    return d.record_data.deal_name || d.record_data.project_name || d.record_data.lead_name || d.record_data.contact_name || d.record_data.account_name || d.record_data.title || '';
   }
   // From old_data (UPDATE/DELETE)
   if (d.old_data) {
-    return d.old_data.deal_name || d.old_data.lead_name || d.old_data.contact_name || d.old_data.account_name || d.old_data.title || '';
+    return d.old_data.deal_name || d.old_data.project_name || d.old_data.lead_name || d.old_data.contact_name || d.old_data.account_name || d.old_data.title || '';
   }
   // From deleted_data (DELETE)
   if (d.deleted_data) {
-    return d.deleted_data.deal_name || d.deleted_data.lead_name || d.deleted_data.contact_name || d.deleted_data.account_name || d.deleted_data.title || '';
+    return d.deleted_data.deal_name || d.deleted_data.project_name || d.deleted_data.lead_name || d.deleted_data.contact_name || d.deleted_data.account_name || d.deleted_data.title || '';
   }
   return '';
 };
