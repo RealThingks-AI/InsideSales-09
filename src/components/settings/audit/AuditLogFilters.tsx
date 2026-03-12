@@ -25,6 +25,7 @@ interface AuditLogFiltersProps {
 export const AuditLogFilters = ({
   searchTerm, onSearchChange,
   category, onCategoryChange,
+  moduleFilter, onModuleFilterChange,
   dateFrom, dateTo,
   onDateFromChange, onDateToChange,
 }: AuditLogFiltersProps) => {
