@@ -155,33 +155,6 @@ export default function CampaignDetail() {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {/* MART pills — compact inline */}
-          <div className="hidden md:flex items-center gap-1 mr-2">
-            {[
-              { key: "M", label: "Message", done: isMARTComplete.message },
-              { key: "A", label: "Audience", done: isMARTComplete.audience },
-              { key: "R", label: "Region", done: isMARTComplete.region },
-              { key: "T", label: "Timing", done: isMARTComplete.timing },
-            ].map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setActiveTab("mart")}
-                title={`${item.label}: ${item.done ? "Done" : "Pending"}`}
-                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-colors ${
-                  item.done
-                    ? "bg-primary/10 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {item.done ? (
-                  <CheckCircle2 className="h-3 w-3" />
-                ) : (
-                  <Circle className="h-3 w-3" />
-                )}
-                {item.key}
-              </button>
-            ))}
-            <span className="text-[10px] text-muted-foreground ml-1">{martProgress}/4</span>
-          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
