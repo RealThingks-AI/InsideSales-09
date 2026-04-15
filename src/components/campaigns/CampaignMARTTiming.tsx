@@ -18,7 +18,6 @@ interface Props {
 export function CampaignMARTTiming({ campaign, isCampaignEnded, daysRemaining, timingNotes, onSaveTimingNotes }: Props) {
   const [notes, setNotes] = useState(timingNotes || "");
 
-  // Sync notes state when timingNotes prop changes
   useEffect(() => {
     setNotes(timingNotes || "");
   }, [timingNotes]);
@@ -39,74 +38,64 @@ export function CampaignMARTTiming({ campaign, isCampaignEnded, daysRemaining, t
     return Math.round(((now - start) / (end - start)) * 100);
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <Clock className="h-4 w-4" />
-        <h4 className="text-sm font-medium">Campaign Timing</h4>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Campaign Start</p>
-          <p className="text-lg font-medium">{campaign.start_date ? format(new Date(campaign.start_date + "T00:00:00"), "dd MMM yyyy") : "Not set"}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Campaign End</p>
-          <p className="text-lg font-medium">{campaign.end_date ? format(new Date(campaign.end_date + "T00:00:00"), "dd MMM yyyy") : "Not set"}</p>
-        </div>
-      </div>
-
-      {isCampaignEnded ? (
-        <div className="flex items-center gap-2">
-          <Badge variant="destructive" className="flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3" /> Ended
-          </Badge>
-          {campaign.end_date && (
-            <span className="text-sm text-muted-foreground">
-              Ended {Math.abs(daysRemaining || 0)} days ago
-            </span>
-          )}
-        </div>
-      ) : daysRemaining !== null ? (
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-base px-3 py-1">
-            <Clock className="h-4 w-4 mr-1" /> {daysRemaining} days remaining
-          </Badge>
-        </div>
-      ) : null}
-
-      {campaign.start_date && campaign.end_date && (
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Progress</span>
-            <span>{getProgress()}%</span>
-          </div>
-          <div className="h-3 bg-muted rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all ${getProgressColor()}`} style={{ width: `${getProgress()}%` }} />
-          </div>
-        </div>
-      )}
-
-      {!campaign.start_date || !campaign.end_date ? (
+  if (!campaign.start_date || !campaign.end_date) {
+    return (
+      <div className="space-y-3">
         <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
           <p className="text-sm text-yellow-700 dark:text-yellow-400">⚠️ Set campaign start and end dates (via Edit button) to enable timing tracking.</p>
         </div>
-      ) : null}
+        <div className="space-y-1.5">
+          <Label className="text-xs">Timing Note</Label>
+          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Must complete outreach before Diwali..." rows={2} className="text-sm" />
+          {onSaveTimingNotes && (
+            <Button variant="outline" size="sm" className="h-7 text-xs mt-1" onClick={() => onSaveTimingNotes(notes)}>Save Note</Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
-      <div className="space-y-2">
-        <Label className="text-sm">Timing Note</Label>
-        <Textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="e.g. Must complete outreach before Diwali..."
-          rows={2}
-          className="text-sm"
-        />
+  return (
+    <div className="space-y-3">
+      {/* Compact horizontal layout: dates + status + progress */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+        <div>
+          <p className="text-xs text-muted-foreground mb-0.5">Start</p>
+          <p className="text-sm font-medium">{format(new Date(campaign.start_date + "T00:00:00"), "dd MMM yyyy")}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground mb-0.5">End</p>
+          <p className="text-sm font-medium">{format(new Date(campaign.end_date + "T00:00:00"), "dd MMM yyyy")}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground mb-0.5">Status</p>
+          {isCampaignEnded ? (
+            <Badge variant="destructive" className="text-xs flex items-center gap-1 w-fit">
+              <AlertTriangle className="h-3 w-3" /> Ended {Math.abs(daysRemaining || 0)}d ago
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-xs flex items-center gap-1 w-fit">
+              <Clock className="h-3 w-3" /> {daysRemaining}d remaining
+            </Badge>
+          )}
+        </div>
+        <div>
+          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <span>Progress</span>
+            <span>{getProgress()}%</span>
+          </div>
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+            <div className={`h-full rounded-full transition-all ${getProgressColor()}`} style={{ width: `${getProgress()}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* Timing note */}
+      <div className="space-y-1.5">
+        <Label className="text-xs">Timing Note</Label>
+        <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Must complete outreach before Diwali..." rows={2} className="text-sm" />
         {onSaveTimingNotes && (
-          <Button variant="outline" size="sm" onClick={() => onSaveTimingNotes(notes)}>
-            Save Note
-          </Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs mt-1" onClick={() => onSaveTimingNotes(notes)}>Save Note</Button>
         )}
       </div>
     </div>
