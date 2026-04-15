@@ -1,77 +1,75 @@
 
 
-## MART Section — Comprehensive Improvements
+# MART Strategy — Complete UI/UX Overhaul & Missing Features
 
-### Issues Found
+## Problems Identified
 
-1. **No MART progress bar or summary at the top** — Users jump straight into sections without seeing overall progress
-2. **No validation before marking done** — Users can mark Message "Done" with zero email templates, zero scripts, etc.
-3. **Sections don't show content counts** — No indication of how many templates/scripts/regions exist without expanding
-4. **No delete confirmation** — Email templates, phone scripts, LinkedIn messages, and materials delete instantly without confirmation
-5. **Audience section doesn't reinitialize when campaign data changes** — `useState` initializer runs once; if campaign updates externally, audience form is stale
-6. **Region section same stale-state issue** — Doesn't sync with updated campaign data
-7. **Timing section doesn't sync `timingNotes` changes** — Initial `useState(timingNotes || "")` never updates when prop changes
-8. **Email template name not shown in list** — Only subject line is displayed; template_name is hidden
-9. **No "Expand All / Collapse All" toggle** — Users must click each section individually
-10. **Message section has nested Cards inside CardContent** — Creates visual clutter with card-in-card nesting
-11. **LinkedIn char counter shows wrong count for saved templates** — Displays length but no visual progress bar
-12. **No reorder or duplicate for templates/scripts** — Common workflow actions missing
-13. **Script audience segment is free text** — Unlike email templates which use checkboxes, scripts use a plain text input for segments
-14. **Materials lack file size display** — No indication of uploaded file sizes
+### Layout & Space Issues
+1. **Message section uses full width but content is sparse** — Email templates, call scripts, LinkedIn messages, and materials are stacked vertically in single-column cards with action buttons pushed to the far right, creating vast empty space in between
+2. **Each MART section is a separate Card** — Creates excessive vertical spacing with redundant borders
+3. **Audience section is single-column** — Job titles, departments, seniority, industries, company sizes are stacked vertically, wasting horizontal space
+4. **Region section** — Region cards use `grid-cols-2` which is fine, but the add/edit form is also single-column when it could be more compact
+5. **Timing section** — Start/end dates use large `text-lg` font and occupy excessive vertical space for simple read-only info
+6. **LinkedIn message body overflows** — Long text shown in `line-clamp-2` but the progress bar stretches full width creating visual noise
 
-### Plan
+### Missing Features
+1. **No sort/reorder for email templates** — Users cannot prioritize template order (Initial → Follow-up → Final sequence)
+2. **No preview mode for email templates** — Users must open edit modal to read full content
+3. **No "Copy to Clipboard" for email templates** — Only LinkedIn messages have copy; emails and scripts don't
+4. **No audience segment filter on Message cards** — Cannot quickly see templates by segment
+5. **No indication of which segment each content targets in the collapsed header summary**
+6. **Materials section has no drag-and-drop or reorder** — Minor, acceptable
+7. **No "Expand/Preview" for call scripts** — Must open edit modal to review talking points and objections
+8. **Audience section has no "clear all" button**
+9. **Timing section cannot edit dates inline** — Only shows a warning to use "Edit" button, which opens the full campaign modal
 
-**File: `src/components/campaigns/CampaignMARTStrategy.tsx`**
-- Add an overall MART progress bar with percentage at the top of the section
-- Add content count badges next to each section label (e.g., "Message · 3 templates, 1 script")
-- Pass content counts from `useCampaignDetail` data (emailTemplates, phoneScripts, materials) to display inline
-- Add "Expand All / Collapse All" button
-- Add validation gate on "Save & Mark Done" — check that meaningful content exists before allowing marking done:
-  - Message: at least 1 email template OR 1 phone script OR 1 LinkedIn template
-  - Audience: at least 1 field populated (job titles, departments, etc.)
-  - Region: at least 1 region card defined
-  - Timing: start_date and end_date must be set on the campaign
-- Show a warning toast if validation fails instead of silently marking done
+### Logic Issues
+1. **LinkedIn duplicate function is missing** — `duplicateEmailTemplate` exists but LinkedIn cards show `confirmDeleteEmailTemplate` for delete, yet no duplicate button exists (Copy button copies text to clipboard, not duplicate the record)
+2. **No validation feedback when saving empty audience** — Save button is disabled but no explanation shown
+3. **Content counts in MART progress header don't include materials count in the summary text** — `getContentSummary` for "message" includes materials but the collapsed header `·` summary only shows when there's content
 
-**File: `src/components/campaigns/CampaignMARTMessage.tsx`**
-- Show template_name prominently in the email template list cards
-- Add delete confirmation dialog (AlertDialog) for email templates, phone scripts, LinkedIn messages, and materials
-- Add duplicate button for email templates and phone scripts
-- Fix script audience segment to use multi-checkbox (same SEGMENTS array as email templates) instead of free text
-- Remove nested Card wrappers — use simple bordered sections to reduce visual noise
-- Add a "Copy to clipboard" button for LinkedIn messages
+---
 
-**File: `src/components/campaigns/CampaignMARTAudience.tsx`**
-- Add `useEffect` to sync state when `campaign.target_audience` changes externally
-- Remove outer Card wrapper (parent already wraps in CardContent)
+## Implementation Plan
 
-**File: `src/components/campaigns/CampaignMARTRegion.tsx`**
-- Add `useEffect` to sync state when `campaign.region` changes externally
-- Remove outer Card wrapper (parent already wraps in CardContent)
-- Add delete confirmation before removing a region card
+### 1. Compact MART Strategy Layout (CampaignMARTStrategy.tsx)
+- Reduce `space-y-4` to `space-y-3` between section cards
+- Make progress card more compact: combine progress bar + section pills into a single tighter row
+- Remove redundant `CardHeader` padding — use `py-2` instead of `py-3`
 
-**File: `src/components/campaigns/CampaignMARTTiming.tsx`**
-- Add `useEffect` to sync `notes` state when `timingNotes` prop changes
-- Remove outer Card wrapper (parent already wraps in CardContent)
-- Show "best outreach window" hint based on region timezones (if regions are set)
+### 2. Redesign Message Section Layout (CampaignMARTMessage.tsx) — Major
+- **Use a 2-column grid** for email templates and call scripts when there are 2+ items: `grid grid-cols-1 lg:grid-cols-2 gap-3`
+- **Add "Copy" button to email template cards** (copy subject + body to clipboard)
+- **Add expand/collapse for call script details** — Show talking points, questions, objections inline on click without opening modal
+- **Truncate LinkedIn message body** to 2 lines with proper `line-clamp-2` and remove full-width progress bar (show char count as badge instead)
+- **Add "Duplicate" button to LinkedIn template cards** (currently missing, only Copy exists)
+- **Compact the section headers** — Reduce spacing between Email/Script/LinkedIn/Materials sections from `space-y-6` to `space-y-4`
+- **Materials table** — Make more compact, reduce padding
 
-**File: `src/pages/CampaignDetail.tsx`**
-- Pass emailTemplates, phoneScripts, materials counts to CampaignMARTStrategy so it can display content summaries per section
+### 3. Redesign Audience Section (CampaignMARTAudience.tsx)
+- **Use 2-column grid layout**: Left column = Job Titles + Industries (tag inputs), Right column = Departments + Seniority + Company Sizes (checkboxes)
+- **Add "Clear All" button** next to Save
+- **Make summary banner more prominent** — Move it above the Save button as a colored callout
+- Reduce `space-y-5` to `space-y-3`
 
-### Technical Details
+### 4. Redesign Timing Section (CampaignMARTTiming.tsx)
+- **Compact layout**: Put start date, end date, days remaining, and progress bar in a single horizontal row using `grid grid-cols-4`
+- Reduce date font from `text-lg` to `text-sm font-medium`
+- Move timing note to the right of the date/progress section in a 2-column layout
+- Keep warning banner for missing dates
 
-- Validation logic lives in `CampaignMARTStrategy` — it reads the existing query data (emailTemplates, phoneScripts, etc.) from `useCampaignDetail` which is already fetched
-- No database changes needed — all data is already available
-- Content counts passed as new props: `emailTemplateCount`, `phoneScriptCount`, `linkedinTemplateCount`, `materialCount`, `regionCount`, `audienceData`
-- Delete confirmation uses existing `AlertDialog` component already imported elsewhere in the app
+### 5. Region Section Minor Tweaks (CampaignMARTRegion.tsx)
+- Already uses 2-column grid — no major changes needed
+- Make the add/edit form inline more compact (reduce padding)
 
-### Files Modified
-| File | Change |
-|---|---|
-| `src/components/campaigns/CampaignMARTStrategy.tsx` | Progress bar, content counts, expand all, validation gates |
-| `src/components/campaigns/CampaignMARTMessage.tsx` | Delete confirmation, show template name, duplicate, fix script segments, copy LinkedIn |
-| `src/components/campaigns/CampaignMARTAudience.tsx` | Sync state on prop change, remove nested Card |
-| `src/components/campaigns/CampaignMARTRegion.tsx` | Sync state on prop change, remove nested Card, delete confirm |
-| `src/components/campaigns/CampaignMARTTiming.tsx` | Sync notes state, remove nested Card |
-| `src/pages/CampaignDetail.tsx` | Pass additional data props to MARTStrategy |
+---
+
+## Files to Edit
+
+| File | Changes |
+|------|---------|
+| `src/components/campaigns/CampaignMARTStrategy.tsx` | Compact spacing, tighter progress card |
+| `src/components/campaigns/CampaignMARTMessage.tsx` | 2-column grid for templates/scripts, add copy button to emails, add duplicate to LinkedIn, expand/collapse for scripts, compact char count display |
+| `src/components/campaigns/CampaignMARTAudience.tsx` | 2-column grid layout, clear all button |
+| `src/components/campaigns/CampaignMARTTiming.tsx` | Horizontal compact layout for dates/progress, 2-column with timing note |
 
