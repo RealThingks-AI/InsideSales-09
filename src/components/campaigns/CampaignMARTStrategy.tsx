@@ -67,7 +67,6 @@ export function CampaignMARTStrategy({ campaignId, campaign, isMARTComplete, upd
     setOpenSections(newState);
   };
 
-  // Validation before marking done
   const validateSection = (key: string): string | null => {
     const counts = contentCounts;
     switch (key) {
@@ -122,7 +121,6 @@ export function CampaignMARTStrategy({ campaignId, campaign, isMARTComplete, upd
   const completedCount = [isMARTComplete.message, isMARTComplete.audience, isMARTComplete.region, isMARTComplete.timing].filter(Boolean).length;
   const progressPercent = (completedCount / 4) * 100;
 
-  // Content count summaries
   const getContentSummary = (key: string): string => {
     if (!contentCounts) return "";
     switch (key) {
@@ -162,30 +160,30 @@ export function CampaignMARTStrategy({ campaignId, campaign, isMARTComplete, upd
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Overall MART Progress */}
+    <div className="space-y-3">
+      {/* Overall MART Progress — compact single row */}
       <Card>
-        <CardContent className="pt-4 pb-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-sm">MART Progress</h3>
+        <CardContent className="py-3 px-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 shrink-0">
+              <h3 className="font-semibold text-sm">MART</h3>
               <Badge variant={completedCount === 4 ? "default" : "secondary"} className="text-xs">
-                {completedCount}/4 Complete
+                {completedCount}/4
               </Badge>
             </div>
-            <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={toggleAll}>
+            <Progress value={progressPercent} className="h-2 flex-1" />
+            <div className="flex items-center gap-2 shrink-0">
+              {sections.map((s) => (
+                <div key={s.key} className="flex items-center gap-1 text-xs text-muted-foreground">
+                  {s.done ? <CheckCircle2 className="h-3 w-3 text-primary" /> : <Circle className="h-3 w-3" />}
+                  <span className="hidden sm:inline">{s.label}</span>
+                </div>
+              ))}
+            </div>
+            <Button variant="ghost" size="sm" className="text-xs gap-1 h-7 shrink-0" onClick={toggleAll}>
               <ChevronsUpDown className="h-3.5 w-3.5" />
-              {Object.values(openSections).every(Boolean) ? "Collapse All" : "Expand All"}
+              <span className="hidden sm:inline">{Object.values(openSections).every(Boolean) ? "Collapse" : "Expand"}</span>
             </Button>
-          </div>
-          <Progress value={progressPercent} className="h-2" />
-          <div className="flex gap-3 mt-2">
-            {sections.map((s) => (
-              <div key={s.key} className="flex items-center gap-1 text-xs text-muted-foreground">
-                {s.done ? <CheckCircle2 className="h-3 w-3 text-primary" /> : <Circle className="h-3 w-3" />}
-                {s.label}
-              </div>
-            ))}
           </div>
         </CardContent>
       </Card>
@@ -194,34 +192,33 @@ export function CampaignMARTStrategy({ campaignId, campaign, isMARTComplete, upd
         <Card key={section.key}>
           <Collapsible open={openSections[section.key]} onOpenChange={() => toggleSection(section.key)}>
             <CollapsibleTrigger asChild>
-              <CardHeader className="py-3 cursor-pointer hover:bg-muted/30 transition-colors">
+              <CardHeader className="py-2.5 px-4 cursor-pointer hover:bg-muted/30 transition-colors">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {openSections[section.key] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                    {section.done ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
+                  <div className="flex items-center gap-2 min-w-0">
+                    {openSections[section.key] ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                    {section.done ? <CheckCircle2 className="h-4 w-4 text-primary shrink-0" /> : <Circle className="h-4 w-4 text-muted-foreground shrink-0" />}
                     {sectionIcons[section.key]}
-                    <CardTitle className="text-base">{section.label}</CardTitle>
-                    {section.done && <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">Done</Badge>}
-                    {/* Content count summary */}
+                    <CardTitle className="text-sm">{section.label}</CardTitle>
+                    {section.done && <Badge variant="secondary" className="bg-primary/10 text-primary text-[10px] px-1.5 py-0">Done</Badge>}
                     {(() => {
                       const summary = getContentSummary(section.key);
                       return summary ? (
-                        <span className="text-xs text-muted-foreground ml-1">· {summary}</span>
+                        <span className="text-xs text-muted-foreground ml-1 truncate">· {summary}</span>
                       ) : null;
                     })()}
                   </div>
-                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                     {section.done ? (
-                      <Button variant="ghost" size="sm" className="text-xs" onClick={() => handleUnmark(section.flag, section.label)}>Unmark</Button>
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => handleUnmark(section.flag, section.label)}>Unmark</Button>
                     ) : (
-                      <Button size="sm" className="text-xs" onClick={() => handleMarkDone(section.flag, section.label, section.key)}>Save & Mark Done</Button>
+                      <Button size="sm" className="text-xs h-7" onClick={() => handleMarkDone(section.flag, section.label, section.key)}>Mark Done</Button>
                     )}
                   </div>
                 </div>
               </CardHeader>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <CardContent className="pt-0">
+              <CardContent className="pt-0 px-4 pb-4">
                 {section.key === "message" && <CampaignMARTMessage campaignId={campaignId} />}
                 {section.key === "audience" && <CampaignMARTAudience campaign={campaign} />}
                 {section.key === "region" && <CampaignMARTRegion campaign={campaign} />}
